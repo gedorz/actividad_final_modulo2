@@ -3,12 +3,45 @@ from pydantic import BaseModel, Field
 from datetime import datetime, date
 from typing import List
 
-app = FastAPI(title="Task Management API", version="1.0.0")
+description = """
+Actividad final del módulo 2 - Programación Avanzada. 🚀
+
+## Objetivos de aprendizaje:
+    1) Aplicar principios de programación orientada a objetos y desarrollar código que se englobe en este paradigma de programación.
+    2) Desarrollar aplicaciones web backend con el framework FastAPI, basado en Python.
+    3) Usar diferentes verbos HTTP y diferentes técnicas habituales en el mundo backend, en arquitecturas REST (enviar payload, responder con el código HTTP adecuado a cada caso...).
+    4) Desplegar aplicaciones backend en entornos locales.
+    5) Crear código en Python usando la librería requests para interactuar con APIs
+## Tecnologías utilizadas:
+    - Python 3.8+
+    - FastAPI
+    - Persistencia SQLite + SQLAlchemy (sqlite:///./tasks.db)
+## Modelo de DB:
+    - TaskDB: id, titulo, contenido, deadline, completada, fecha_creacion
+    - Pydantic: TaskCreate, TaskUpdate, TaskResponse (hereda orm_mode)
+    - TaskManager con encapsulamiento + abstracción:  _clean_text() (normaliza / censura palabras malsonantes) 
+## Notas:
+    - El proyecto se desarrollará usando FastAPI, un framework moderno y rápido para construir APIs con Python.
+    - Se implementarán endpoints para crear tareas, obtener detalles de tareas, marcar tareas como completadas y listar tareas caducadas.
+    - La persistencia de datos se realizará utilizando SQLite a través de SQLAlchemy, lo que permitirá almacenar las tareas de manera eficiente.
+    - Se aplicarán principios de programación orientada a objetos para estructurar el código de manera modular y mantenible.
+    - Se utilizarán modelos Pydantic para validar y serializar los datos de entrada y salida de la API.
+    - Se implementará una clase TaskManager para encapsular la lógica de negocio relacionada con las tareas, incluyendo una función _clean_text() para normalizar o censurar palabras malsonantes en los títulos y contenidos de las tareas.   
+"""
+
+app = FastAPI(title="Task Management API",
+              description=description,
+              version="1.0.0",
+              contact={
+                "url": "https://www.linkedin.com/in/german-dario-realpe-zambrano/",
+                "name": "Creador: German Dario realpe zambrano",
+                "email": "gedorz@gmail.com",
+            })
 
 # Modelos Pydantic
 class TaskCreate(BaseModel):
-    titulo: str = Field(min_length=1, description="Título de la tarea")
-    contenido: str = Field(min_length=1, description="Contenido de la tarea")
+    titulo: str = Field(min_length=1, max_length=100, description="Título de la tarea")
+    contenido: str = Field(min_length=1, max_length=200, description="Contenido de la tarea")
     deadline: date = Field(description="Fecha de vencimiento")
 
 class TaskUpdate(BaseModel):
