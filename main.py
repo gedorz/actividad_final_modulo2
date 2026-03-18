@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel, Field
-from datetime import datetime, date
-from typing import List
+
+from DataBaseManagement.Management import TaskManager, TaskDB, TaskCreate, TaskUpdate, TaskResponse
+from DataBaseManagement.Management import get_db
+from sqlalchemy.orm import Session
 
 description = """
 Actividad final del módulo 2 - Programación Avanzada. 🚀
@@ -38,30 +39,10 @@ app = FastAPI(title="Task Management API",
                 "email": "gedorz@gmail.com",
             })
 
-# Modelos Pydantic
-class TaskCreate(BaseModel):
-    titulo: str = Field(min_length=1, max_length=100, description="Título de la tarea")
-    contenido: str = Field(min_length=1, max_length=200, description="Contenido de la tarea")
-    deadline: date = Field(description="Fecha de vencimiento")
-
-class TaskUpdate(BaseModel):
-    completada: bool = Field(description="Estado de completado")
-
-class TaskResponse(BaseModel):
-    id: int
-    titulo: str
-    contenido: str
-    deadline: date
-    completada: bool
-    fecha_creacion: datetime
 
 # Almacenamiento en memoria
 tasks = {}
 task_counter = 0
-
-# TODO: Implementar clase TaskManager con lógica de negocio
-# class TaskManager:
-#     ...
 
 # TODO: Implementar endpoints
 # @app.post("/tasks/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
