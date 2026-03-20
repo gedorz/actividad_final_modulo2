@@ -1,5 +1,9 @@
 from fastapi import FastAPI,APIRouter,Depends, status
-from DataBaseManagement.dbManagement import *
+from DataBaseManagement.dbManagement import get_db, init_db
+from DataBaseManagement.dbservices import TaskManager
+from DataBaseManagement.schemas import TaskCreate, TaskUpdate, TaskResponse
+from sqlalchemy.orm import Session
+from typing import List
 
 router = APIRouter()
 
@@ -46,12 +50,12 @@ def init_fastapi():
 @router.post("/tasks/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def crear_tarea(task: TaskCreate, db: Session = Depends(get_db)):
     manager = TaskManager(db)
-    return manager.create_task(task)
+    return manager.add_task(task)
     
 @router.get("/tasks/", response_model=List[TaskResponse])
 def listar_tareas(db: Session = Depends(get_db)):
     manager = TaskManager(db)
-    return manager.list_tasks()
+    return manager.get_all_tasks()
 
 @router.get("/tasks/caducadas", response_model=List[TaskResponse])
 def obtener_tareas_caducadas(db: Session = Depends(get_db)):
@@ -68,10 +72,10 @@ def obtener_tarea(task_id: int, db: Session = Depends(get_db)):
     manager = TaskManager(db)
     return manager.get_task(task_id)
 
-@router.put("/tasks/{task_id}/completar", response_model=TaskResponse)
+@router.put("/tasks/completar/{task_id}", response_model=TaskResponse)
 def marcar_completada(task_id: int, db: Session = Depends(get_db)):
     manager = TaskManager(db)
-    return manager.complete_task(task_id)
+    return manager.set_task_completed(task_id)
 
 @router.put("/tasks/{task_id}", response_model=TaskResponse)
 def actualizar_tarea(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db)):
