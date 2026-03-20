@@ -1,14 +1,16 @@
-from pydantic import BaseModel, Field
 from datetime import datetime, date
-from typing import List
+import os
 from sqlalchemy import create_engine, Column, Integer, String, Date, Boolean, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from pydantic import BaseModel, Field
+from typing import List
 
+# Is done: Variables de entorno para configuración de la base de datos
+database_url = os.getenv("DATABASE_URL", "sqlite:///./tasks.db")
 
-# Is done: Base de datos en persistencia SQLite
-database_url = "sqlite:///./tasksmanager.db"
-enguine = create_engine(database_url, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=enguine)
+# Is done: Base de datos en persistencia SQLite con SQLAlchemy
+engine = create_engine(database_url, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()   
 
 class TaskDB(Base):
@@ -20,7 +22,8 @@ class TaskDB(Base):
     completada = Column(Boolean, default=False)
     fecha_creacion = Column(DateTime, default=datetime.utcnow)
 
-Base.metadata.create_all(bind=enguine)
+def init_db():
+    Base.metadata.create_all(bind=engine)
 
 # Is done: Modelos Pydantic
 class TaskCreate(BaseModel):
@@ -43,7 +46,11 @@ class TaskResponse(BaseModel):
     fecha_creacion: datetime
 
     class Config:
-        orm_mode = True
+        # Permitir la conversión de objetos ORM a modelos Pydantic v2
+        from_attributes = True
+        # Permitir la conversión de objetos ORM a modelos Pydantic v1
+        # orm_mode = True
+
 
 # Is done: Implementar clase TaskManager con lógica de negocio
 # class TaskManager:
