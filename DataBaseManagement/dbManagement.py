@@ -1,9 +1,12 @@
 import os
+from dotenv import load_dotenv
 from datetime import datetime, date
 from sqlalchemy import create_engine, Column, Integer, String, Date, Boolean, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from typing import List
 from .schemas import TaskCreate, TaskUpdate, TaskResponse
+
+load_dotenv()  # Cargar variables de entorno desde el archivo .env
 
 # Is done: Variables de entorno para configuración de la base de datos
 database_url = os.getenv("DATABASE_URL", "sqlite:///./tasks.db")
