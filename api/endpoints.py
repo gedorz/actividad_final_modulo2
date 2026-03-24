@@ -52,42 +52,50 @@ def crear_tarea(task: TaskCreate, db: Session = Depends(get_db)):
     manager = TaskManager(db)
     return manager.add_task(task)
     
-@router.get("/tasks/", response_model=List[TaskResponse])
-def listar_tareas(db: Session = Depends(get_db)):
-    manager = TaskManager(db)
-    return manager.get_all_tasks()
-
-@router.get("/tasks/caducadas", response_model=List[TaskResponse])
-def obtener_tareas_caducadas(db: Session = Depends(get_db)):
-    manager = TaskManager(db)
-    return manager.get_expired_tasks()
-
-@router.get("/tasks/caducadas/count")
-def contar_caducadas(db: Session = Depends(get_db)):
-    manager = TaskManager(db)
-    return {"overdue": manager.count_overdue()}
-
-@router.get("/tasks/{task_id}", response_model=TaskResponse)
-def obtener_tarea(task_id: int, db: Session = Depends(get_db)):
-    manager = TaskManager(db)
-    return manager.get_task(task_id)
-
+# cambiar el estado de una tarea a completada
 @router.put("/tasks/completar/{task_id}", response_model=TaskResponse)
 def marcar_completada(task_id: int, db: Session = Depends(get_db)):
     manager = TaskManager(db)
     return manager.set_task_completed(task_id)
 
-@router.put("/tasks/{task_id}", response_model=TaskResponse)
+# Actualización de tarea (no requerida en los tests pero implementada para completar la API)
+@router.put("/tasks/{task_id}", response_model=TaskResponse, status_code=status.HTTP_202_ACCEPTED)
 def actualizar_tarea(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db)):
     manager = TaskManager(db)
     return manager.update_task(task_id, task_update)
 
+# Endpoint para listar todas las tareas    
+@router.get("/tasks/", response_model=List[TaskResponse])
+def listar_tareas(db: Session = Depends(get_db)):
+    manager = TaskManager(db)
+    return manager.get_all_tasks()
+
+# Endpoint para listar tareas caducadas
+@router.get("/tasks/caducadas", response_model=List[TaskResponse])
+def obtener_tareas_caducadas(db: Session = Depends(get_db)):
+    manager = TaskManager(db)
+    return manager.get_expired_tasks()
+
+# Endpoint para contar tareas caducadas
+@router.get("/tasks/caducadas/count")
+def contar_caducadas(db: Session = Depends(get_db)):
+    manager = TaskManager(db)
+    return {"overdue": manager.count_overdue()}
+
+# Endpoint para obtener detalles de una tarea específica
+@router.get("/tasks/{task_id}", response_model=TaskResponse)
+def obtener_tarea(task_id: int, db: Session = Depends(get_db)):
+    manager = TaskManager(db)
+    return manager.get_task(task_id)
+
+# Endpoint para eliminar una tarea
 @router.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def borrar_tarea(task_id: int, db: Session = Depends(get_db)):
     manager = TaskManager(db)
     manager.delete_task(task_id)
     return None
 
+# Endpoint raíz para verificar que la API está funcionando
 @router.get("/")
 def root():
     return {"message": "Task Management API"}
