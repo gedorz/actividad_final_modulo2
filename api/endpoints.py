@@ -46,7 +46,7 @@ def init_fastapi():
                 })
     return app
 
-# Endpoints de la API para la gestión de tareas
+# Endpoints de la API para crear una tarea
 @router.post("/tasks/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def crear_tarea(task: TaskCreate, db: Session = Depends(get_db)):
     manager = TaskManager(db)
