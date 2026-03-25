@@ -154,9 +154,10 @@ def test_borrar_tarea():
     data, payload = createTask(payload)
     taskID = data.get("id")
    
-    response = client.delete(f"/tasks/{taskID}")
+    response = client.delete(f"{URL}/tasks/{taskID}")
     assert response.status_code == 204
-    response = client.get(f"/tasks/{taskID}")
+    
+    response = client.get(f"{URL}/tasks/{taskID}")
     assert response.status_code == 404
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from fastapi import FastAPI,APIRouter,Depends, status
+from fastapi import FastAPI,APIRouter,Depends, HTTPException, status
 from DataBaseManagement.dbManagement import get_db, init_db
 from DataBaseManagement.dbservices import TaskManager
 from DataBaseManagement.schemas import TaskCreate, TaskUpdate, TaskResponse
@@ -56,13 +56,25 @@ def crear_tarea(task: TaskCreate, db: Session = Depends(get_db)):
 @router.put("/tasks/completar/{task_id}", response_model=TaskResponse)
 def marcar_completada(task_id: int, db: Session = Depends(get_db)):
     manager = TaskManager(db)
-    return manager.set_task_completed(task_id)
+    try:
+        return manager.set_task_completed(task_id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
 
 # Actualización de tarea (no requerida en los tests pero implementada para completar la API)
 @router.put("/tasks/{task_id}", response_model=TaskResponse, status_code=status.HTTP_202_ACCEPTED)
 def actualizar_tarea(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db)):
     manager = TaskManager(db)
-    return manager.update_task(task_id, task_update)
+    try:
+        return manager.update_task(task_id, task_update)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )   
 
 # Endpoint para listar todas las tareas    
 @router.get("/tasks/", response_model=List[TaskResponse])
@@ -86,13 +98,25 @@ def contar_caducadas(db: Session = Depends(get_db)):
 @router.get("/tasks/{task_id}", response_model=TaskResponse)
 def obtener_tarea(task_id: int, db: Session = Depends(get_db)):
     manager = TaskManager(db)
-    return manager.get_task(task_id)
+    try:
+        return manager.get_task(task_id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=str(e)
+        )
 
 # Endpoint para eliminar una tarea
 @router.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 def borrar_tarea(task_id: int, db: Session = Depends(get_db)):
     manager = TaskManager(db)
-    manager.delete_task(task_id)
+    try:
+        manager.delete_task(task_id)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
     return None
 
 # Endpoint raíz para verificar que la API está funcionando
